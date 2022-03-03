@@ -1,7 +1,7 @@
 package initial
 
 import (
-	"GoGinServerBestPractice/global"
+	"GatewayCombat/global"
 	"log"
 	"reflect"
 	"strings"

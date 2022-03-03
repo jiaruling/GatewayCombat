@@ -1,11 +1,11 @@
 package main
 
 import (
-	"GoGinServerBestPractice/global"
-	"GoGinServerBestPractice/initial"
-	"GoGinServerBestPractice/service/api"
-	"GoGinServerBestPractice/service/backend_task"
-	"GoGinServerBestPractice/utils"
+	"GatewayCombat/global"
+	"GatewayCombat/initial"
+	"GatewayCombat/service/api"
+	"GatewayCombat/service/backend_task"
+	"GatewayCombat/utils"
 	"log"
 	"os"
 	"os/signal"

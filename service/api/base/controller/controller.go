@@ -1,11 +1,11 @@
 package controller
 
 import (
-	"GoGinServerBestPractice/global"
-	"GoGinServerBestPractice/global/errInfo"
-	"GoGinServerBestPractice/service/api/base/form"
-	"GoGinServerBestPractice/service/grf"
-	"GoGinServerBestPractice/utils"
+	"GatewayCombat/global"
+	"GatewayCombat/global/errInfo"
+	"GatewayCombat/service/api/base/form"
+	"GatewayCombat/service/grf"
+	"GatewayCombat/utils"
 	"encoding/base64"
 	"io/ioutil"
 	"os"
@@ -27,6 +27,11 @@ func NotFound(c *gin.Context) {
 
 func Health(c *gin.Context) {
 	grf.Handler200(c, global.Config.Name)
+	return
+}
+
+func Ping(c *gin.Context) {
+	grf.Handler200(c, "pong")
 	return
 }
 

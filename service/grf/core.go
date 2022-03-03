@@ -1,7 +1,7 @@
 package grf
 
 import (
-	"GoGinServerBestPractice/global"
+	"GatewayCombat/global"
 	"net/http"
 	"strconv"
 	"strings"
@@ -23,6 +23,7 @@ type ViewAPI interface {
 	ListViewAPI(c *gin.Context)
 	RetrieveViewAPI(c *gin.Context)
 	GetModelIsInit() (ok bool) // 判断模型是否初始化
+	GetAllowMethod() []string  // 判断模型允许的请求方式
 }
 
 type CreateField struct {
@@ -57,6 +58,7 @@ type SelectFieldList struct {
 type Model struct {
 	M               interface{} // 模型实例指针, *必传
 	Table           string      // 表名, *必传
+	AllowMethods    []string    // 允许的请求方式 GET, POST, PUT, DELETE, nil 表示允许增删改查
 	CreateField                 // 创建时字段设置
 	SoftDeleteField             // 软删除字段
 	UpdateField                 // 更新时字段设置
@@ -217,5 +219,13 @@ func (m Model) GetModelIsInit() (ok bool) {
 		return false
 	} else {
 		return true
+	}
+}
+
+func (m Model) GetAllowMethod() []string {
+	if m.AllowMethods == nil {
+		return []string{"GET", "POST", "PUT", "DELETE"}
+	} else {
+		return m.AllowMethods
 	}
 }

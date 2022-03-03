@@ -1,6 +1,6 @@
 package model
 
-import "GoGinServerBestPractice/service/grf"
+import "GatewayCombat/service/grf"
 
 /*
    功能说明:
@@ -20,8 +20,9 @@ type Student struct {
 }
 
 var Stu = grf.Model{
-	M:     nil, // M: new(Student) 传入模型的结构体指针
-	Table: "student",
+	M:            nil, // M: new(Student) 传入模型的结构体指针
+	Table:        "student",
+	AllowMethods: []string{"POST", "DELETE"},
 	CreateField: grf.CreateField{
 		CreatedFields:        nil,
 		CreatedIgnoreFields:  []string{"deleted_at"},

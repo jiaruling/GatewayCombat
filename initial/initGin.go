@@ -1,8 +1,9 @@
 package initial
 
 import (
-	"GoGinServerBestPractice/global"
-	m "GoGinServerBestPractice/service/middleware"
+	"GatewayCombat/global"
+	m "GatewayCombat/service/middleware"
+
 	"github.com/gin-gonic/gin"
 )
 
@@ -17,7 +18,7 @@ func InitGin() {
 	// 初始gin的路由并赋值给全局变量
 	r := gin.Default()
 	// 注册全局中间件，跨域请求
-	r.Use(m.Cors(), m.AccessLog())
+	r.Use(m.RecoveryMiddleware(), m.Cors(), m.AccessLog())
 	apiV1 := r.Group("/api/v1")
 	// 复制给全局单例
 	global.GinRouter = &global.Router{

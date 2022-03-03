@@ -1,8 +1,8 @@
 package initial
 
 import (
-	"GoGinServerBestPractice/global"
-	"GoGinServerBestPractice/utils"
+	"GatewayCombat/global"
+	"GatewayCombat/utils"
 	"fmt"
 	"os"
 )

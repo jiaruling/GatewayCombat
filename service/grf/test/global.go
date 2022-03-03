@@ -1,7 +1,7 @@
 package main
 
 import (
-	"GoGinServerBestPractice/service/grf"
+	"GatewayCombat/service/grf"
 	"fmt"
 
 	"gorm.io/driver/mysql"

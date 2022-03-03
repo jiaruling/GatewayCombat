@@ -1,8 +1,8 @@
 package grf
 
 import (
-	"GoGinServerBestPractice/global"
-	"GoGinServerBestPractice/global/errInfo"
+	"GatewayCombat/global"
+	"GatewayCombat/global/errInfo"
 	"net/http"
 
 	"github.com/go-playground/validator/v10"

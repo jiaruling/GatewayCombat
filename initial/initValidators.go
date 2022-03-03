@@ -5,8 +5,8 @@ import (
 	ut "github.com/go-playground/universal-translator"
 	"github.com/go-playground/validator/v10"
 
-	"GoGinServerBestPractice/global"
-	"GoGinServerBestPractice/service/validate"
+	"GatewayCombat/global"
+	"GatewayCombat/service/validate"
 )
 
 // 注册自定义验证器并进行错误翻译

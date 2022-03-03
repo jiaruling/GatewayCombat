@@ -1,7 +1,7 @@
 package validate
 
 import (
-	"GoGinServerBestPractice/global"
+	"GatewayCombat/global"
 	"fmt"
 	"regexp"
 

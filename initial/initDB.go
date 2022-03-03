@@ -1,8 +1,8 @@
 package initial
 
 import (
-	"GoGinServerBestPractice/global"
-	"GoGinServerBestPractice/service/grf"
+	"GatewayCombat/global"
+	"GatewayCombat/service/grf"
 	"fmt"
 	"log"
 	"time"

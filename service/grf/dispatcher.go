@@ -1,6 +1,7 @@
 package grf
 
 import (
+	"GatewayCombat/global/errInfo"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -21,22 +22,26 @@ func Dispatcher(c *gin.Context, m ViewAPI) {
 		)
 		return
 	}
-	switch c.Request.Method {
-	case "GET":
-		//fmt.Println(c.Param("id"))
-		if len(c.Param("id")) == 1 {
-			m.ListViewAPI(c)
-		} else {
-			m.RetrieveViewAPI(c)
+	if inFields(c.Request.Method, m.GetAllowMethod()) {
+		switch c.Request.Method {
+		case "GET":
+			//fmt.Println(c.Param("id"))
+			if len(c.Param("id")) == 1 {
+				m.ListViewAPI(c)
+			} else {
+				m.RetrieveViewAPI(c)
+			}
+		case "POST":
+			m.CreateViewAPI(c)
+		case "PUT":
+			m.UpdateViewAPI(c)
+		case "DELETE":
+			m.DeleteViewAPI(c)
+		default:
+			Handler400(c, errInfo.RequestNotAllow, "")
 		}
-	case "POST":
-		m.CreateViewAPI(c)
-	case "PUT":
-		m.UpdateViewAPI(c)
-	case "DELETE":
-		m.DeleteViewAPI(c)
-	default:
-		c.JSON(http.StatusBadRequest, gin.H{"code": http.StatusBadRequest, "msg": "请求方式不被允许", "data": ""})
+	} else {
+		Handler400(c, errInfo.RequestNotAllow, "")
 	}
 	return
 }

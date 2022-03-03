@@ -1,7 +1,7 @@
 package global
 
 import (
-	. "GoGinServerBestPractice/global/config_struct"
+	. "GatewayCombat/global/config_struct"
 	"log"
 	"time"
 

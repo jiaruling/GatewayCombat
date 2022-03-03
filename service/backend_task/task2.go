@@ -1,7 +1,7 @@
 package backend_task
 
 import (
-	"GoGinServerBestPractice/global"
+	"GatewayCombat/global"
 	"time"
 )
 

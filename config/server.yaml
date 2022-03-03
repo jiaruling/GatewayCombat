@@ -1,6 +1,7 @@
-name: "gin最佳实践"
+name: "网关最佳实战"
 env: "dev"
 runMode: "debug"
+
 mysql:
   user: "root"
   password: "abc123456"
@@ -8,3 +9,6 @@ mysql:
   port: 3306
   db: "imooc"
   parameter: "charset=utf8mb4&parseTime=True&loc=Local"
+
+redis:
+  uri: ""

@@ -1,7 +1,7 @@
 package middleware
 
 import (
-	"GoGinServerBestPractice/global"
+	"GatewayCombat/global"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -24,7 +24,7 @@ func AccessLog() gin.HandlerFunc {
 		//	c.Request.Body = ioutil.NopCloser(bytes.NewBuffer(bodyData))
 		//}
 		defer func(start time.Time) {
-			global.AccessLog.Printf("%v, %v, %v, %v ms", c.Request.Method, c.Request.RequestURI, c.Request.RemoteAddr, time.Since(start).Milliseconds())
+			global.AccessLog.Printf("%v || %v || %v || %v ms", c.Request.Method, c.Request.RequestURI, c.Request.RemoteAddr, time.Since(start).Milliseconds())
 		}(time.Now())
 
 		// 处理请求

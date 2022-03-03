@@ -1,8 +1,8 @@
 package user
 
 import (
-	"GoGinServerBestPractice/global"
-	"GoGinServerBestPractice/service/api/user/controller"
+	"GatewayCombat/global"
+	"GatewayCombat/service/api/user/controller"
 )
 
 func Router() {

@@ -1,4 +1,4 @@
-module GoGinServerBestPractice
+module GatewayCombat
 
 go 1.16
 

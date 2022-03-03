@@ -1,8 +1,8 @@
 package api
 
 import (
-	"GoGinServerBestPractice/service/api/base"
-	"GoGinServerBestPractice/service/api/user"
+	"GatewayCombat/service/api/base"
+	"GatewayCombat/service/api/user"
 )
 
 func RegisterRouter() {

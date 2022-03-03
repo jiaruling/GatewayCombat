@@ -1,8 +1,8 @@
 package controller
 
 import (
-	"GoGinServerBestPractice/service/api/user/model"
-	"GoGinServerBestPractice/service/grf"
+	"GatewayCombat/service/api/user/model"
+	"GatewayCombat/service/grf"
 
 	"github.com/gin-gonic/gin"
 )
