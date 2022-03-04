@@ -3,6 +3,7 @@ package global
 import (
 	. "GatewayCombat/global/config_struct"
 	"log"
+	"net/http"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -25,18 +26,20 @@ type Router struct {
 }
 
 var (
-	Config    ServerConfig
-	GinRouter *Router
-	Trans     ut.Translator
-	RDB       *gorm.DB
-	WDB       *gorm.DB
-	AccessLog *log.Logger
-	SqlLog    *log.Logger
-	TaskLog   *log.Logger
-	LogPath   []string
-	Validate  *validator.Validate
-	Expires   time.Duration
-	ETicker   *time.Ticker
+	Config         ServerConfig
+	GinRouter      *Router
+	Trans          ut.Translator
+	RDB            *gorm.DB
+	WDB            *gorm.DB
+	AccessLog      *log.Logger
+	SqlLog         *log.Logger
+	TaskLog        *log.Logger
+	LogPath        []string
+	Validate       *validator.Validate
+	Expires        time.Duration
+	ETicker        *time.Ticker
+	HttpSrvHandler *http.Server
+	//Store          sessions.RedisStore
 )
 
 // 初始化全局变量

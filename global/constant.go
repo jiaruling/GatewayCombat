@@ -16,4 +16,6 @@ const (
 	LogFilePath    = "./log"
 	ConfigFilePath = "./config"
 	MaxUploadSize  = 5 * 1024 * 2014 // 5 MB
+
+	AdminSessionInfoKey = "AdminSessionInfoKey"
 )

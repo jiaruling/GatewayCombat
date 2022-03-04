@@ -4,11 +4,12 @@ runMode: "debug"
 
 mysql:
   user: "root"
-  password: "abc123456"
-  ip: "192.168.18.100"
-  port: 3306
+  password: "123456"
+  ip: "127.0.0.1"
+  port: 3366
   db: "imooc"
   parameter: "charset=utf8mb4&parseTime=True&loc=Local"
 
 redis:
-  uri: ""
+  server: "127.0.0.1:6379"
+  password: ""

@@ -3,7 +3,9 @@ package initial
 import (
 	"GatewayCombat/global"
 	m "GatewayCombat/service/middleware"
+	"log"
 
+	"github.com/gin-gonic/contrib/sessions"
 	"github.com/gin-gonic/gin"
 )
 
@@ -15,11 +17,17 @@ import (
 */
 
 func InitGin() {
+	// 创建基于session的会话
+	store, err := sessions.NewRedisStore(10, "tcp", global.Config.Redis.Server, global.Config.Redis.Password, []byte("secret"))
+	if err != nil {
+		log.Fatalf("sessions.NewRedisStore err:%v", err)
+	}
 	// 初始gin的路由并赋值给全局变量
 	r := gin.Default()
 	// 注册全局中间件，跨域请求
 	r.Use(m.RecoveryMiddleware(), m.Cors(), m.AccessLog())
 	apiV1 := r.Group("/api/v1")
+	apiV1.Use(sessions.Sessions("mysession", store))
 	// 复制给全局单例
 	global.GinRouter = &global.Router{
 		Router: r,

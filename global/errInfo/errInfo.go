@@ -24,4 +24,5 @@ const (
 	FileNotFound         ErrInfo = "文件不存在"
 	Base64DecodeFailed   ErrInfo = "base64解码失败"
 	InternalUnknownError ErrInfo = "内部未知错误"
+	UserOrPassWordError  ErrInfo = "用户名或密码错误"
 )

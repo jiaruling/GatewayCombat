@@ -12,6 +12,7 @@ type ServerConfig struct {
 	Env     string `mapstructure:"env"`
 	RunMode string `mapstructure:"runMode"`
 	MySQL   Mysql  `mapstructure:"mysql"`
+	Redis   Redis  `mapstructure:"redis"`
 }
 
 type Mysql struct {
@@ -21,4 +22,9 @@ type Mysql struct {
 	Port      int    `mapstructure:"port"`
 	Db        string `mapstructure:"db"`
 	Parameter string `mapstructure:"parameter"`
+}
+
+type Redis struct {
+	Server   string `mapstructure:"server"`
+	Password string `mapstructure:"password"`
 }

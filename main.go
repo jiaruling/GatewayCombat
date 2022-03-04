@@ -52,7 +52,9 @@ func main() {
 	//log.Println(global.Config)
 	log.Println("9. 启动http服务")
 	initial.InitService()
-	log.Println("10. 启动后台定时任务")
+	log.Println("10. 初始化Session")
+	//initial.InitSession()
+	log.Println("11. 启动后台定时任务")
 	backend_task.InitBackendTask()
 	log.Println("-------------------------------------------------------------------------------------------------")
 	// 优雅退出
@@ -64,6 +66,7 @@ func main() {
 	//从quit中接收值，忽略结果
 	<-quit
 	log.Println("-------------------------------------------------------------------------------------------------")
+	initial.HttpServerStop()
 	log.Println("优雅退出...")
 	log.Println("资源重置, 保存数据...")
 	log.Println("注销服务...")
