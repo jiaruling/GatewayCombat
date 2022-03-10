@@ -8,11 +8,12 @@ package config_struct
 */
 
 type ServerConfig struct {
-	Name    string `mapstructure:"name"`
-	Env     string `mapstructure:"env"`
-	RunMode string `mapstructure:"runMode"`
-	MySQL   Mysql  `mapstructure:"mysql"`
-	Redis   Redis  `mapstructure:"redis"`
+	Name    string  `mapstructure:"name"`
+	Env     string  `mapstructure:"env"`
+	RunMode string  `mapstructure:"runMode"`
+	MySQL   Mysql   `mapstructure:"mysql"`
+	Redis   Redis   `mapstructure:"redis"`
+	Cluster Cluster `mapstructure:"cluster"`
 }
 
 type Mysql struct {
@@ -27,4 +28,10 @@ type Mysql struct {
 type Redis struct {
 	Server   string `mapstructure:"server"`
 	Password string `mapstructure:"password"`
+}
+
+type Cluster struct {
+	Ip      string `mapstructure:"ip"`
+	Port    int    `mapstructure:"port"`
+	SSLPort int    `mapstructure:"ssl_port"`
 }

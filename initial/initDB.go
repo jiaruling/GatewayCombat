@@ -20,13 +20,6 @@ import (
    创建时间: 2022/1.sql/19 9:56
 */
 
-/*
-   功能说明:
-   参考:
-   创建人: 贾汝凌
-   创建时间: 2021/12/14 15:47
-*/
-
 func InitDB() {
 	MySQL := global.Config.MySQL
 	DNS := fmt.Sprintf("%s:%s@tcp(%s:%v)/%s?%s", MySQL.User, MySQL.Password, MySQL.Ip, MySQL.Port, MySQL.Db, MySQL.Parameter)

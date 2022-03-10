@@ -3,7 +3,7 @@ package controller
 import (
 	"GatewayCombat/global"
 	"GatewayCombat/global/errInfo"
-	"GatewayCombat/service/api/base/form"
+	"GatewayCombat/service/api/base/dto"
 	"GatewayCombat/service/grf"
 	"GatewayCombat/utils"
 	"encoding/base64"
@@ -26,6 +26,11 @@ func NotFound(c *gin.Context) {
 }
 
 func Health(c *gin.Context) {
+	grf.Handler200(c, global.Config.Name)
+	return
+}
+
+func Info(c *gin.Context) {
 	grf.Handler200(c, global.Config.Name)
 	return
 }
@@ -54,7 +59,7 @@ func GetConfigFile(c *gin.Context) {
 
 // base64数据解码后写入文件
 func PostConfigFile(c *gin.Context) {
-	var v form.FileContent
+	var v dto.FileContent
 	if err := c.ShouldBind(&v); err != nil {
 		grf.FormsVerifyFailed(c, err)
 		return
