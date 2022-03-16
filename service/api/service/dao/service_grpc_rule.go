@@ -29,8 +29,8 @@ func (gr *GrpcRule) Find(tx *gorm.DB, search *GrpcRule) (*GrpcRule, error) {
 	return out, err
 }
 
-func (gr *GrpcRule) Save(tx *gorm.DB, model *GrpcRule) error {
-	if err := tx.Save(model).Error; err != nil {
+func (gr *GrpcRule) Save(tx *gorm.DB) error {
+	if err := tx.Save(gr).Error; err != nil {
 		return err
 	}
 	return nil

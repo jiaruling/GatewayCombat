@@ -34,8 +34,8 @@ func (hr *HttpRule) Find(tx *gorm.DB, search *HttpRule) (*HttpRule, error) {
 	return out, err
 }
 
-func (hr *HttpRule) Save(tx *gorm.DB, model *HttpRule) error {
-	if err := tx.Save(model).Error; err != nil {
+func (hr *HttpRule) Save(tx *gorm.DB) error {
+	if err := tx.Save(hr).Error; err != nil {
 		return err
 	}
 	return nil

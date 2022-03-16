@@ -41,8 +41,8 @@ func (lb *LoadBalance) Find(tx *gorm.DB, search *LoadBalance) (*LoadBalance, err
 	return out, err
 }
 
-func (lb *LoadBalance) Save(tx *gorm.DB, model *LoadBalance) error {
-	if err := tx.Save(model).Error; err != nil {
+func (lb *LoadBalance) Save(tx *gorm.DB) error {
+	if err := tx.Save(lb).Error; err != nil {
 		return err
 	}
 	return nil

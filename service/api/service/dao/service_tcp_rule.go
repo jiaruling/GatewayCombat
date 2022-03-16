@@ -28,8 +28,8 @@ func (tr *TcpRule) Find(tx *gorm.DB, search *TcpRule) (*TcpRule, error) {
 	return out, err
 }
 
-func (tr *TcpRule) Save(tx *gorm.DB, model *TcpRule) error {
-	if err := tx.Save(model).Error; err != nil {
+func (tr *TcpRule) Save(tx *gorm.DB) error {
+	if err := tx.Save(tr).Error; err != nil {
 		return err
 	}
 	return nil

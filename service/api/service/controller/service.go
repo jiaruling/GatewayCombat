@@ -2,11 +2,13 @@ package controller
 
 import (
 	"GatewayCombat/global"
+	"GatewayCombat/global/errInfo"
 	"GatewayCombat/service/api/service/dao"
 	"GatewayCombat/service/api/service/dto"
 	"GatewayCombat/service/grf"
 	"GatewayCombat/service/public"
 	"fmt"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 )
@@ -40,7 +42,7 @@ func ServiceRegister(group *gin.RouterGroup) {
 	}
 }
 
-func (service *ServiceController) ServiceList(c *gin.Context) {
+func (sc *ServiceController) ServiceList(c *gin.Context) {
 	// 请求参数表单验证
 	params := &dto.ServiceListInput{}
 	if err := c.ShouldBind(params); err != nil {
@@ -115,14 +117,14 @@ func (service *ServiceController) ServiceList(c *gin.Context) {
 	return
 }
 
-func (service *ServiceController) ServiceDelete(c *gin.Context) {
+func (sc *ServiceController) ServiceDelete(c *gin.Context) {
 	s := dao.Service
 	s.M = new(dao.ServiceInfo)
 	s.DeleteViewAPI(c)
 	return
 }
 
-func (service *ServiceController) ServiceDetail(c *gin.Context) {
+func (sc *ServiceController) ServiceDetail(c *gin.Context) {
 	// 请求参数表单验证
 	params := &dto.ServiceSingleByIdInput{}
 	if err := c.ShouldBind(params); err != nil {
@@ -145,35 +147,524 @@ func (service *ServiceController) ServiceDetail(c *gin.Context) {
 	return
 }
 
-func (service *ServiceController) ServiceStat(c *gin.Context) {
+func (sc *ServiceController) ServiceStat(c *gin.Context) {
 	// 请求参数表单验证
 	params := &dto.ServiceSingleByIdInput{}
 	if err := c.ShouldBind(params); err != nil {
 		public.FormsVerifyFailed(c, err)
 		return
 	}
+	grf.Handler200(c, errInfo.SUCCESS)
 }
 
-func (service *ServiceController) ServiceAddHTTP(c *gin.Context) {
+func (sc *ServiceController) ServiceAddHTTP(c *gin.Context) {
+	params := &dto.ServiceAddHTTPInput{}
+	if err := c.ShouldBind(params); err != nil {
+		public.FormsVerifyFailed(c, err)
+		return
+	}
 
+	if len(strings.Split(params.IpList, ",")) != len(strings.Split(params.WeightList, ",")) {
+		grf.Handler400(c, "IP列表与权重列表数量不一致", nil)
+		return
+	}
+
+	tx := global.WDB
+	tx = tx.Begin()
+	serviceInfo := &dao.ServiceInfo{ServiceName: params.ServiceName}
+	if _, err := serviceInfo.Find(tx, serviceInfo); err == nil {
+		tx.Rollback()
+		grf.Handler500(c, "服务已存在", nil)
+		return
+	}
+
+	httpUrl := &dao.HttpRule{RuleType: params.RuleType, Rule: params.Rule}
+	if _, err := httpUrl.Find(tx, httpUrl); err == nil {
+		tx.Rollback()
+		grf.Handler500(c, "服务接入前缀或域名已存在", nil)
+		return
+	}
+
+	serviceModel := &dao.ServiceInfo{
+		ServiceName: params.ServiceName,
+		ServiceDesc: params.ServiceDesc,
+	}
+	if err := serviceModel.Save(tx); err != nil {
+		tx.Rollback()
+		grf.Handler500(c, "10001 --> "+err.Error(), nil)
+		return
+	}
+	//serviceModel.ID
+	httpRule := &dao.HttpRule{
+		ServiceID:      serviceModel.ID,
+		RuleType:       params.RuleType,
+		Rule:           params.Rule,
+		NeedHttps:      params.NeedHttps,
+		NeedStripUri:   params.NeedStripUri,
+		NeedWebsocket:  params.NeedWebsocket,
+		UrlRewrite:     params.UrlRewrite,
+		HeaderTransfor: params.HeaderTransfor,
+	}
+	if err := httpRule.Save(tx); err != nil {
+		tx.Rollback()
+		grf.Handler500(c, "10002 --> "+err.Error(), nil)
+		return
+	}
+
+	accessControl := &dao.AccessControl{
+		ServiceID:         serviceModel.ID,
+		OpenAuth:          params.OpenAuth,
+		BlackList:         params.BlackList,
+		WhiteList:         params.WhiteList,
+		ClientIPFlowLimit: params.ClientipFlowLimit,
+		ServiceFlowLimit:  params.ServiceFlowLimit,
+	}
+	if err := accessControl.Save(tx); err != nil {
+		tx.Rollback()
+		grf.Handler500(c, "10003 --> "+err.Error(), nil)
+		return
+	}
+
+	loadBalance := &dao.LoadBalance{
+		ServiceID:              serviceModel.ID,
+		RoundType:              params.RoundType,
+		IpList:                 params.IpList,
+		WeightList:             params.WeightList,
+		UpstreamConnectTimeout: params.UpstreamConnectTimeout,
+		UpstreamHeaderTimeout:  params.UpstreamHeaderTimeout,
+		UpstreamIdleTimeout:    params.UpstreamIdleTimeout,
+		UpstreamMaxIdle:        params.UpstreamMaxIdle,
+	}
+	if err := loadBalance.Save(tx); err != nil {
+		tx.Rollback()
+		grf.Handler500(c, "10004 --> "+err.Error(), nil)
+		return
+	}
+	tx.Commit()
+	grf.Handler200(c, errInfo.SUCCESS)
+	return
 }
 
-func (service *ServiceController) ServiceUpdateHTTP(c *gin.Context) {
+func (sc *ServiceController) ServiceUpdateHTTP(c *gin.Context) {
+	params := &dto.ServiceUpdateHTTPInput{}
+	if err := c.ShouldBind(params); err != nil {
+		public.FormsVerifyFailed(c, err)
+		return
+	}
 
+	if len(strings.Split(params.IpList, ",")) != len(strings.Split(params.WeightList, ",")) {
+		grf.Handler400(c, "IP列表与权重列表数量不一致", nil)
+		return
+	}
+
+	tx := global.WDB
+	tx = tx.Begin()
+	serviceInfo := &dao.ServiceInfo{ServiceName: params.ServiceName}
+	serviceInfo, err := serviceInfo.Find(tx, serviceInfo)
+	if err != nil {
+		tx.Rollback()
+		grf.Handler500(c, "服务不存在", nil)
+		return
+	}
+	serviceDetail, err := serviceInfo.ServiceDetail(tx, serviceInfo)
+	if err != nil {
+		tx.Rollback()
+		grf.Handler500(c, "20001 --> "+err.Error(), nil)
+		return
+	}
+
+	info := serviceDetail.Info
+	info.ServiceName = params.ServiceName
+	info.ServiceDesc = params.ServiceDesc
+	if err := info.Save(tx); err != nil {
+		tx.Rollback()
+		grf.Handler500(c, "20002 --> "+err.Error(), nil)
+		return
+	}
+
+	httpRule := serviceDetail.HTTPRule
+	httpRule.NeedHttps = params.NeedHttps
+	httpRule.NeedStripUri = params.NeedStripUri
+	httpRule.NeedWebsocket = params.NeedWebsocket
+	httpRule.UrlRewrite = params.UrlRewrite
+	httpRule.HeaderTransfor = params.HeaderTransfor
+	if err := httpRule.Save(tx); err != nil {
+		tx.Rollback()
+		grf.Handler500(c, "20003 --> "+err.Error(), nil)
+		return
+	}
+
+	accessControl := serviceDetail.AccessControl
+	accessControl.OpenAuth = params.OpenAuth
+	accessControl.BlackList = params.BlackList
+	accessControl.WhiteList = params.WhiteList
+	accessControl.ClientIPFlowLimit = params.ClientipFlowLimit
+	accessControl.ServiceFlowLimit = params.ServiceFlowLimit
+	if err := accessControl.Save(tx); err != nil {
+		tx.Rollback()
+		grf.Handler500(c, "20004 --> "+err.Error(), nil)
+		return
+	}
+
+	loadbalance := serviceDetail.LoadBalance
+	loadbalance.RoundType = params.RoundType
+	loadbalance.IpList = params.IpList
+	loadbalance.WeightList = params.WeightList
+	loadbalance.UpstreamConnectTimeout = params.UpstreamConnectTimeout
+	loadbalance.UpstreamHeaderTimeout = params.UpstreamHeaderTimeout
+	loadbalance.UpstreamIdleTimeout = params.UpstreamIdleTimeout
+	loadbalance.UpstreamMaxIdle = params.UpstreamMaxIdle
+	if err := loadbalance.Save(tx); err != nil {
+		tx.Rollback()
+		grf.Handler500(c, "20005 --> "+err.Error(), nil)
+		return
+	}
+	tx.Commit()
+	grf.Handler200(c, errInfo.SUCCESS)
+	return
 }
 
-func (service *ServiceController) ServiceAddTcp(c *gin.Context) {
+func (sc *ServiceController) ServiceAddTcp(c *gin.Context) {
+	params := &dto.ServiceAddTcpInput{}
+	if err := c.ShouldBind(params); err != nil {
+		public.FormsVerifyFailed(c, err)
+		return
+	}
 
+	//验证 service_name 是否被占用
+	infoSearch := &dao.ServiceInfo{
+		ServiceName: params.ServiceName,
+		DeleteAt:    nil,
+	}
+	if _, err := infoSearch.Find(global.RDB, infoSearch); err == nil {
+		grf.Handler400(c, "服务名被占用，请重新输入", nil)
+		return
+	}
+
+	//验证端口是否被占用?
+	tcpRuleSearch := &dao.TcpRule{
+		Port: params.Port,
+	}
+	if _, err := tcpRuleSearch.Find(global.RDB, tcpRuleSearch); err == nil {
+		grf.Handler400(c, "服务端口被占用，请重新输入", nil)
+		return
+	}
+	grpcRuleSearch := &dao.GrpcRule{
+		Port: params.Port,
+	}
+	if _, err := grpcRuleSearch.Find(global.RDB, grpcRuleSearch); err == nil {
+		grf.Handler400(c, "服务端口被占用，请重新输入", nil)
+		return
+	}
+
+	//ip与权重数量一致
+	if len(strings.Split(params.IpList, ",")) != len(strings.Split(params.WeightList, ",")) {
+		grf.Handler400(c, "ip列表与权重设置不匹配", nil)
+		return
+	}
+
+	tx := global.WDB.Begin()
+	info := &dao.ServiceInfo{
+		LoadType:    global.LoadTypeTCP,
+		ServiceName: params.ServiceName,
+		ServiceDesc: params.ServiceDesc,
+	}
+	if err := info.Save(tx); err != nil {
+		tx.Rollback()
+		grf.Handler500(c, "10001 --> "+err.Error(), nil)
+		return
+	}
+	loadBalance := &dao.LoadBalance{
+		ServiceID:  info.ID,
+		RoundType:  params.RoundType,
+		IpList:     params.IpList,
+		WeightList: params.WeightList,
+		ForbidList: params.ForbidList,
+	}
+	if err := loadBalance.Save(tx); err != nil {
+		tx.Rollback()
+		grf.Handler500(c, "10002 --> "+err.Error(), nil)
+		return
+	}
+
+	httpRule := &dao.TcpRule{
+		ServiceID: info.ID,
+		Port:      params.Port,
+	}
+	if err := httpRule.Save(tx); err != nil {
+		tx.Rollback()
+		grf.Handler500(c, "10003 --> "+err.Error(), nil)
+		return
+	}
+
+	accessControl := &dao.AccessControl{
+		ServiceID:         info.ID,
+		OpenAuth:          params.OpenAuth,
+		BlackList:         params.BlackList,
+		WhiteList:         params.WhiteList,
+		WhiteHostName:     params.WhiteHostName,
+		ClientIPFlowLimit: params.ClientIPFlowLimit,
+		ServiceFlowLimit:  params.ServiceFlowLimit,
+	}
+	if err := accessControl.Save(tx); err != nil {
+		tx.Rollback()
+		grf.Handler500(c, "10004 --> "+err.Error(), nil)
+		return
+	}
+	tx.Commit()
+	grf.Handler200(c, errInfo.SUCCESS)
+	return
 }
 
-func (service *ServiceController) ServiceUpdateTcp(c *gin.Context) {
+func (sc *ServiceController) ServiceUpdateTcp(c *gin.Context) {
+	params := &dto.ServiceUpdateTcpInput{}
+	if err := c.ShouldBind(params); err != nil {
+		public.FormsVerifyFailed(c, err)
+		return
+	}
 
+	//ip与权重数量一致
+	if len(strings.Split(params.IpList, ",")) != len(strings.Split(params.WeightList, ",")) {
+		grf.Handler400(c, "IP列表与权重列表数量不一致", nil)
+		return
+	}
+
+	service := &dao.ServiceInfo{
+		ID: params.ID,
+	}
+	detail, err := service.ServiceDetail(global.RDB, service)
+	if err != nil {
+		grf.Handler500(c, "10001 --> "+err.Error(), nil)
+		return
+	}
+
+	tx := global.WDB.Begin()
+	info := detail.Info
+	info.ServiceDesc = params.ServiceDesc
+	if err := info.Save(tx); err != nil {
+		tx.Rollback()
+		grf.Handler500(c, "10002 --> "+err.Error(), nil)
+		return
+	}
+
+	loadBalance := &dao.LoadBalance{}
+	if detail.LoadBalance != nil {
+		loadBalance = detail.LoadBalance
+	}
+	loadBalance.ServiceID = info.ID
+	loadBalance.RoundType = params.RoundType
+	loadBalance.IpList = params.IpList
+	loadBalance.WeightList = params.WeightList
+	loadBalance.ForbidList = params.ForbidList
+	if err := loadBalance.Save(tx); err != nil {
+		tx.Rollback()
+		grf.Handler500(c, "10003 --> "+err.Error(), nil)
+		return
+	}
+
+	tcpRule := &dao.TcpRule{}
+	if detail.TCPRule != nil {
+		tcpRule = detail.TCPRule
+	}
+	tcpRule.ServiceID = info.ID
+	tcpRule.Port = params.Port
+	if err := tcpRule.Save(tx); err != nil {
+		tx.Rollback()
+		grf.Handler500(c, "10004 --> "+err.Error(), nil)
+		return
+	}
+
+	accessControl := &dao.AccessControl{}
+	if detail.AccessControl != nil {
+		accessControl = detail.AccessControl
+	}
+	accessControl.ServiceID = info.ID
+	accessControl.OpenAuth = params.OpenAuth
+	accessControl.BlackList = params.BlackList
+	accessControl.WhiteList = params.WhiteList
+	accessControl.WhiteHostName = params.WhiteHostName
+	accessControl.ClientIPFlowLimit = params.ClientIPFlowLimit
+	accessControl.ServiceFlowLimit = params.ServiceFlowLimit
+	if err := accessControl.Save(tx); err != nil {
+		tx.Rollback()
+		grf.Handler500(c, "10005 --> "+err.Error(), nil)
+		return
+	}
+	tx.Commit()
+	grf.Handler200(c, errInfo.SUCCESS)
+	return
 }
 
-func (service *ServiceController) ServiceAddGrpc(c *gin.Context) {
+func (sc *ServiceController) ServiceAddGrpc(c *gin.Context) {
+	params := &dto.ServiceAddGrpcInput{}
+	if err := c.ShouldBind(params); err != nil {
+		public.FormsVerifyFailed(c, err)
+		return
+	}
 
+	//验证 service_name 是否被占用
+	infoSearch := &dao.ServiceInfo{
+		ServiceName: params.ServiceName,
+		DeleteAt:    nil,
+	}
+	if _, err := infoSearch.Find(global.RDB, infoSearch); err == nil {
+		grf.Handler400(c, "服务名被占用，请重新输入", nil)
+		return
+	}
+
+	//验证端口是否被占用?
+	tcpRuleSearch := &dao.TcpRule{
+		Port: params.Port,
+	}
+	if _, err := tcpRuleSearch.Find(global.RDB, tcpRuleSearch); err == nil {
+		grf.Handler400(c, "服务端口被占用，请重新输入", nil)
+		return
+	}
+	grpcRuleSearch := &dao.GrpcRule{
+		Port: params.Port,
+	}
+	if _, err := grpcRuleSearch.Find(global.RDB, grpcRuleSearch); err == nil {
+		grf.Handler400(c, "服务端口被占用，请重新输入", nil)
+		return
+	}
+
+	//ip与权重数量一致
+	if len(strings.Split(params.IpList, ",")) != len(strings.Split(params.WeightList, ",")) {
+		grf.Handler400(c, "ip列表与权重设置不匹配", nil)
+		return
+	}
+
+	tx := global.WDB.Begin()
+	info := &dao.ServiceInfo{
+		LoadType:    global.LoadTypeGRPC,
+		ServiceName: params.ServiceName,
+		ServiceDesc: params.ServiceDesc,
+	}
+	if err := info.Save(tx); err != nil {
+		tx.Rollback()
+		grf.Handler500(c, "10001 --> "+err.Error(), nil)
+		return
+	}
+
+	loadBalance := &dao.LoadBalance{
+		ServiceID:  info.ID,
+		RoundType:  params.RoundType,
+		IpList:     params.IpList,
+		WeightList: params.WeightList,
+		ForbidList: params.ForbidList,
+	}
+	if err := loadBalance.Save(tx); err != nil {
+		tx.Rollback()
+		grf.Handler500(c, "10002 --> "+err.Error(), nil)
+		return
+	}
+
+	grpcRule := &dao.GrpcRule{
+		ServiceID:      info.ID,
+		Port:           params.Port,
+		HeaderTransfor: params.HeaderTransfor,
+	}
+	if err := grpcRule.Save(tx); err != nil {
+		tx.Rollback()
+		grf.Handler500(c, "10003 --> "+err.Error(), nil)
+		return
+	}
+
+	accessControl := &dao.AccessControl{
+		ServiceID:         info.ID,
+		OpenAuth:          params.OpenAuth,
+		BlackList:         params.BlackList,
+		WhiteList:         params.WhiteList,
+		WhiteHostName:     params.WhiteHostName,
+		ClientIPFlowLimit: params.ClientIPFlowLimit,
+		ServiceFlowLimit:  params.ServiceFlowLimit,
+	}
+	if err := accessControl.Save(tx); err != nil {
+		tx.Rollback()
+		grf.Handler500(c, "10004 --> "+err.Error(), nil)
+		return
+	}
+	tx.Commit()
+	grf.Handler200(c, errInfo.SUCCESS)
+	return
 }
 
-func (service *ServiceController) ServiceUpdateGrpc(c *gin.Context) {
+func (sc *ServiceController) ServiceUpdateGrpc(c *gin.Context) {
+	params := &dto.ServiceUpdateGrpcInput{}
+	if err := c.ShouldBind(params); err != nil {
+		public.FormsVerifyFailed(c, err)
+		return
+	}
 
+	//ip与权重数量一致
+	if len(strings.Split(params.IpList, ",")) != len(strings.Split(params.WeightList, ",")) {
+		grf.Handler400(c, "ip列表与权重设置不匹配", nil)
+		return
+	}
+
+	service := &dao.ServiceInfo{
+		ID: params.ID,
+	}
+	detail, err := service.ServiceDetail(global.RDB, service)
+	if err != nil {
+		grf.Handler500(c, "10001 --> "+err.Error(), nil)
+		return
+	}
+
+	tx := global.WDB.Begin()
+	info := detail.Info
+	info.ServiceDesc = params.ServiceDesc
+	if err := info.Save(tx); err != nil {
+		tx.Rollback()
+		grf.Handler500(c, "10002 --> "+err.Error(), nil)
+		return
+	}
+
+	loadBalance := &dao.LoadBalance{}
+	if detail.LoadBalance != nil {
+		loadBalance = detail.LoadBalance
+	}
+	loadBalance.ServiceID = info.ID
+	loadBalance.RoundType = params.RoundType
+	loadBalance.IpList = params.IpList
+	loadBalance.WeightList = params.WeightList
+	loadBalance.ForbidList = params.ForbidList
+	if err := loadBalance.Save(tx); err != nil {
+		tx.Rollback()
+		grf.Handler500(c, "10003 --> "+err.Error(), nil)
+		return
+	}
+
+	grpcRule := &dao.GrpcRule{}
+	if detail.GRPCRule != nil {
+		grpcRule = detail.GRPCRule
+	}
+	grpcRule.ServiceID = info.ID
+	//grpcRule.Port = params.Port
+	grpcRule.HeaderTransfor = params.HeaderTransfor
+	if err := grpcRule.Save(tx); err != nil {
+		tx.Rollback()
+		grf.Handler500(c, "10004 --> "+err.Error(), nil)
+		return
+	}
+
+	accessControl := &dao.AccessControl{}
+	if detail.AccessControl != nil {
+		accessControl = detail.AccessControl
+	}
+	accessControl.ServiceID = info.ID
+	accessControl.OpenAuth = params.OpenAuth
+	accessControl.BlackList = params.BlackList
+	accessControl.WhiteList = params.WhiteList
+	accessControl.WhiteHostName = params.WhiteHostName
+	accessControl.ClientIPFlowLimit = params.ClientIPFlowLimit
+	accessControl.ServiceFlowLimit = params.ServiceFlowLimit
+	if err := accessControl.Save(tx); err != nil {
+		tx.Rollback()
+		grf.Handler500(c, "10005 --> "+err.Error(), nil)
+		return
+	}
+	tx.Commit()
+	grf.Handler200(c, errInfo.SUCCESS)
+	return
 }

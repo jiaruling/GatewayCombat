@@ -67,8 +67,8 @@ func (si *ServiceInfo) Find(tx *gorm.DB, search *ServiceInfo) (*ServiceInfo, err
 	return out, err
 }
 
-func (si *ServiceInfo) Save(tx *gorm.DB, model *ServiceInfo) error {
-	return tx.Save(model).Error
+func (si *ServiceInfo) Save(tx *gorm.DB) error {
+	return tx.Save(si).Error
 }
 
 // ---------------------------------------------------------------------------------------------------------------------

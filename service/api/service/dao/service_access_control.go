@@ -33,8 +33,8 @@ func (ac *AccessControl) Find(tx *gorm.DB, search *AccessControl) (*AccessContro
 	return out, err
 }
 
-func (ac *AccessControl) Save(tx *gorm.DB, model *AccessControl) error {
-	if err := tx.Save(model).Error; err != nil {
+func (ac *AccessControl) Save(tx *gorm.DB) error {
+	if err := tx.Save(ac).Error; err != nil {
 		return err
 	}
 	return nil
