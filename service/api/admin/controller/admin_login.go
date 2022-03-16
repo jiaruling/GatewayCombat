@@ -2,9 +2,11 @@ package controller
 
 import (
 	"GatewayCombat/global"
+	"GatewayCombat/global/errInfo"
 	"GatewayCombat/service/api/admin/dao"
 	"GatewayCombat/service/api/admin/dto"
 	"GatewayCombat/service/grf"
+	"GatewayCombat/service/public"
 	"encoding/json"
 	"time"
 
@@ -40,14 +42,14 @@ func AdminLoginRegister(group *gin.RouterGroup) {
 // @Router /admin_login/login [post]
 func (a *AdminLoginController) AdminLogin(c *gin.Context) {
 	// 表单验证
-	req := &dto.AdminLoginInput{}
-	if err := c.ShouldBindJSON(&req); err != nil {
-		grf.FormsVerifyFailed(c, err)
+	params := &dto.AdminLoginInput{}
+	if err := c.ShouldBind(&params); err != nil {
+		public.FormsVerifyFailed(c, err)
 		return
 	}
 	// 验证用户名密码
-	adminDao := &dao.AdminDao{}
-	admin, err := adminDao.LoginCheck(global.RDB, req)
+	admin := &dao.Admin{}
+	admin, err := admin.LoginCheck(global.RDB, params)
 	if err != nil {
 		grf.Handler400(c, err.Error(), nil)
 		return
@@ -61,9 +63,10 @@ func (a *AdminLoginController) AdminLogin(c *gin.Context) {
 	}
 	sessBts, err := json.Marshal(sessInfo)
 	if err != nil {
-		grf.Handler500(c, "", err)
+		grf.Handler500(c, err.Error(), nil)
 		return
 	}
+	// 保存 session
 	sess := sessions.Default(c)
 	sess.Set(global.AdminSessionInfoKey, string(sessBts))
 	sess.Save()
@@ -85,5 +88,5 @@ func (a *AdminLoginController) AdminLoginOut(c *gin.Context) {
 	sess := sessions.Default(c)
 	sess.Delete(global.AdminSessionInfoKey)
 	sess.Save()
-	grf.Handler200(c, "")
+	grf.Handler200(c, errInfo.LogoutSuccess)
 }

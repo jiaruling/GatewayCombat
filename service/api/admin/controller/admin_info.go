@@ -4,8 +4,8 @@ import (
 	"GatewayCombat/global"
 	"GatewayCombat/service/api/admin/dao"
 	"GatewayCombat/service/api/admin/dto"
-	"GatewayCombat/service/api/admin/model"
 	"GatewayCombat/service/grf"
+	"GatewayCombat/service/public"
 	"GatewayCombat/utils"
 	"encoding/json"
 	"fmt"
@@ -71,8 +71,8 @@ func (a *AdminController) AdminInfo(c *gin.Context) {
 // @Router /admin/change_pwd [post]
 func (a *AdminController) ChangePwd(c *gin.Context) {
 	req := &dto.ChangePwdInput{}
-	if err := c.ShouldBindJSON(req); err != nil {
-		grf.FormsVerifyFailed(c, err)
+	if err := c.ShouldBind(req); err != nil {
+		public.FormsVerifyFailed(c, err)
 		return
 	}
 	//1. session读取用户信息到结构体 sessInfo
@@ -84,8 +84,8 @@ func (a *AdminController) ChangePwd(c *gin.Context) {
 		return
 	}
 	//2. sessInfo.ID 读取数据库信息 adminInfo
-	adminDao := &dao.AdminDao{}
-	adminInfo, err := adminDao.Find(global.RDB, &model.Admin{Id: adminSessionInfo.ID})
+	admin := &dao.Admin{}
+	adminInfo, err := admin.Find(global.RDB, &dao.Admin{Id: adminSessionInfo.ID})
 	if err != nil {
 		grf.Handler500(c, err.Error(), nil)
 		return
@@ -94,7 +94,7 @@ func (a *AdminController) ChangePwd(c *gin.Context) {
 	saltPassword := utils.GenSaltPassword(adminInfo.Salt, req.Password)
 	adminInfo.Password = saltPassword
 	//4. saltPassword==> adminInfo.password 执行数据保存
-	if err := adminDao.Save(global.WDB, adminInfo); err != nil {
+	if err := admin.Save(global.WDB, adminInfo); err != nil {
 		grf.Handler500(c, err.Error(), nil)
 		return
 	}

@@ -39,7 +39,9 @@ var (
 	Expires        time.Duration
 	ETicker        *time.Ticker
 	HttpSrvHandler *http.Server
-	//Store          sessions.RedisStore
+	LoadTypeMap    map[int]string
+	//Store        sessions.RedisStore
+
 )
 
 // 初始化全局变量
@@ -48,4 +50,9 @@ func init() {
 	Validate = validator.New()
 	Expires = 10 // 10s
 	ETicker = time.NewTicker(Expires * time.Second)
+	LoadTypeMap = map[int]string{
+		LoadTypeHTTP: "HTTP",
+		LoadTypeTCP:  "TCP",
+		LoadTypeGRPC: "GRPC",
+	}
 }

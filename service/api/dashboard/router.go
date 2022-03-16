@@ -10,6 +10,6 @@ import "GatewayCombat/global"
 */
 
 func Router() {
-	_ := global.GinRouter.V1.Group("/dashboard")
+	_ = global.GinRouter.V1.Group("/dashboard")
 
 }

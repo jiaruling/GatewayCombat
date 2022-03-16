@@ -2,9 +2,9 @@ package dao
 
 import (
 	"GatewayCombat/service/api/admin/dto"
-	"GatewayCombat/service/api/admin/model"
 	"GatewayCombat/utils"
 	"errors"
+	"time"
 
 	"gorm.io/gorm"
 )
@@ -15,10 +15,36 @@ import (
    创建人: 贾汝凌
    创建时间: 2022/3/4 15:17
 */
-type AdminDao struct{}
+type Admin struct {
+	Id        int       `json:"id" gorm:"primary_key" description:"自增主键"`
+	UserName  string    `json:"user_name" gorm:"column:user_name" description:"管理员用户名"`
+	Salt      string    `json:"salt" gorm:"column:salt" description:"盐"`
+	Password  string    `json:"password" gorm:"column:password" description:"密码"`
+	UpdatedAt time.Time `json:"update_at" gorm:"column:update_at" description:"更新时间"`
+	CreatedAt time.Time `json:"create_at" gorm:"column:create_at" description:"创建时间"`
+	IsDelete  int       `json:"is_delete" gorm:"column:is_delete" description:"是否删除"`
+}
 
-func (ad *AdminDao) LoginCheck(tx *gorm.DB, req *dto.AdminLoginInput) (adminInfo *model.Admin, err error) {
-	adminInfo, err = ad.Find(tx, &model.Admin{UserName: req.UserName, IsDelete: 0})
+func (a *Admin) TableName() string {
+	return "gateway_admin"
+}
+
+// ---------------------------------------------------------------------------------------------------------------------
+func (a *Admin) Find(tx *gorm.DB, search *Admin) (*Admin, error) {
+	admin := &Admin{}
+	if err := tx.Where(search).Find(admin).Error; err != nil {
+		return nil, err
+	}
+	return admin, nil
+}
+
+func (a *Admin) Save(tx *gorm.DB, model *Admin) (err error) {
+	return tx.Save(model).Error
+}
+
+// ---------------------------------------------------------------------------------------------------------------------
+func (a *Admin) LoginCheck(tx *gorm.DB, req *dto.AdminLoginInput) (adminInfo *Admin, err error) {
+	adminInfo, err = a.Find(tx, &Admin{UserName: req.UserName, IsDelete: 0})
 	if err != nil {
 		return nil, errors.New("用户信息不存在")
 	}
@@ -27,16 +53,4 @@ func (ad *AdminDao) LoginCheck(tx *gorm.DB, req *dto.AdminLoginInput) (adminInfo
 		return nil, errors.New("密码错误，请重新输入")
 	}
 	return adminInfo, nil
-}
-
-func (ad *AdminDao) Find(tx *gorm.DB, search *model.Admin) (*model.Admin, error) {
-	admin := &model.Admin{}
-	if err := tx.Where(search).Find(admin).Error; err != nil {
-		return nil, err
-	}
-	return admin, nil
-}
-
-func (ad *AdminDao) Save(tx *gorm.DB, model *model.Admin) (err error) {
-	return tx.Save(model).Error
 }

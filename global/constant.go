@@ -18,4 +18,11 @@ const (
 	MaxUploadSize  = 5 * 1024 * 2014 // 5 MB
 
 	AdminSessionInfoKey = "AdminSessionInfoKey"
+
+	LoadTypeHTTP = 0
+	LoadTypeTCP  = 1
+	LoadTypeGRPC = 2
+
+	HTTPRuleTypePrefixURL = 0
+	HTTPRuleTypeDomain    = 1
 )
