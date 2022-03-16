@@ -40,6 +40,7 @@ var (
 	ETicker        *time.Ticker
 	HttpSrvHandler *http.Server
 	LoadTypeMap    map[int]string
+	TimeLocation   *time.Location
 	//Store        sessions.RedisStore
 
 )

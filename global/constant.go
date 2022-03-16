@@ -25,4 +25,8 @@ const (
 
 	HTTPRuleTypePrefixURL = 0
 	HTTPRuleTypeDomain    = 1
+
+	FlowTotal         = "flow_total"
+	FlowServicePrefix = "flow_service_"
+	FlowAppPrefix     = "flow_app_"
 )

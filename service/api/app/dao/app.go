@@ -1,5 +1,11 @@
 package dao
 
+import (
+	"GatewayCombat/service/api/app/dto"
+
+	"gorm.io/gorm"
+)
+
 /*
    功能说明:
    参考:
@@ -20,6 +26,45 @@ type App struct {
 	DeletedAt int64  `json:"deleted_at" db:"deleted_at" gorm:"column:deleted_at"`
 }
 
-func (t *App) TableName() string {
+func (a *App) TableName() string {
 	return "gateway_app"
+}
+
+// ---------------------------------------------------------------------------------------------------------------------
+func (a *App) Find(tx *gorm.DB, search *App) (*App, error) {
+	model := &App{}
+	err := tx.Where(search).Find(model).Error
+	return model, err
+}
+
+func (a *App) Save(tx *gorm.DB) error {
+	if err := tx.Save(a).Error; err != nil {
+		return err
+	}
+	return nil
+}
+
+// ---------------------------------------------------------------------------------------------------------------------
+func (a *App) APPList(tx *gorm.DB, params *dto.APPListInput) ([]App, int64, error) {
+	var list []App
+	var count int64
+	pageNo := params.PageNo
+	pageSize := params.PageSize
+
+	//limit offset,pagesize
+	offset := (pageNo - 1) * pageSize
+	query := tx.Table(a.TableName()).Select("*")
+	query = query.Where("is_delete=?", 0)
+	if params.Info != "" {
+		query = query.Where(" (name like '%?%' or app_id like '%?%')", params.Info, params.Info)
+	}
+	err := query.Limit(pageSize).Offset(offset).Order("id desc").Find(&list).Error
+	if err != nil && err != gorm.ErrRecordNotFound {
+		return nil, 0, err
+	}
+	errCount := query.Count(&count).Error
+	if errCount != nil {
+		return nil, 0, err
+	}
+	return list, count, nil
 }

@@ -1,6 +1,9 @@
 package dashboard
 
-import "GatewayCombat/global"
+import (
+	"GatewayCombat/global"
+	"GatewayCombat/service/api/dashboard/controller"
+)
 
 /*
    功能说明:
@@ -10,6 +13,6 @@ import "GatewayCombat/global"
 */
 
 func Router() {
-	_ = global.GinRouter.V1.Group("/dashboard")
-
+	d := global.GinRouter.V1.Group("/dashboard")
+	controller.DashboardRegister(d)
 }
