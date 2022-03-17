@@ -9,6 +9,7 @@ import (
 	"GatewayCombat/service/public"
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/gin-gonic/gin"
 )
@@ -154,7 +155,21 @@ func (sc *ServiceController) ServiceStat(c *gin.Context) {
 		public.FormsVerifyFailed(c, err)
 		return
 	}
-	grf.Handler200(c, errInfo.SUCCESS)
+
+	var todayList []int64
+	currentTime := time.Now()
+	for i := 0; i <= currentTime.Hour(); i++ {
+		todayList = append(todayList, 0)
+	}
+
+	var yesterdayList []int64
+	for i := 0; i <= 23; i++ {
+		yesterdayList = append(yesterdayList, 0)
+	}
+	grf.Handler200(c, &dto.ServiceStatOutput{
+		Today:     todayList,
+		Yesterday: yesterdayList,
+	})
 }
 
 func (sc *ServiceController) ServiceAddHTTP(c *gin.Context) {

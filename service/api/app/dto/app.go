@@ -7,22 +7,22 @@ package dto
    创建时间: 2022/3/10 17:02
 */
 type APPListInput struct {
-	Info     string `json:"info" form:"info" comment:"查找信息" binding:""`
-	PageSize int    `json:"page_size" form:"page_size" comment:"页数" binding:"required,min=1,max=999"`
-	PageNo   int    `json:"page_no" form:"page_no" comment:"页码" binding:"required,min=1,max=999"`
+	Info     string `json:"info" dto:"info" comment:"查找信息" binding:""`
+	PageSize int    `json:"page_size" dto:"page_size" comment:"页数" binding:"required,min=1,max=999"`
+	PageNo   int    `json:"page_no" dto:"page_no" comment:"页码" binding:"required,min=1,max=999"`
 }
 
 type APPSingleByIdInput struct {
-	ID int64 `json:"id" form:"id" comment:"租户ID" binding:"required"`
+	ID int64 `json:"id" dto:"id" comment:"租户ID" binding:"required"`
 }
 
 type APPAddHttpInput struct {
-	AppID    string `json:"app_id" form:"app_id" comment:"租户id" binding:"required"`
-	Name     string `json:"name" form:"name" comment:"租户名称" binding:"required"`
-	Secret   string `json:"secret" form:"secret" comment:"密钥" binding:""`
-	WhiteIPS string `json:"white_ips" form:"white_ips" comment:"ip白名单，支持前缀匹配"`
-	Qpd      int64  `json:"qpd" form:"qpd" comment:"日请求量限制" binding:""`
-	Qps      int64  `json:"qps" form:"qps" comment:"每秒请求量限制" binding:""`
+	AppID    string `json:"app_id" dto:"app_id" comment:"租户id" binding:"required"`
+	Name     string `json:"name" dto:"name" comment:"租户名称" binding:"required"`
+	Secret   string `json:"secret" dto:"secret" comment:"密钥" binding:""`
+	WhiteIPS string `json:"white_ips" dto:"white_ips" comment:"ip白名单，支持前缀匹配"`
+	Qpd      int64  `json:"qpd" dto:"qpd" comment:"日请求量限制" binding:""`
+	Qps      int64  `json:"qps" dto:"qps" comment:"每秒请求量限制" binding:""`
 }
 
 type APPUpdateHttpInput struct {
@@ -47,13 +47,13 @@ type APPListItemOutput struct {
 }
 
 type APPListOutput struct {
-	List     []APPListItemOutput `json:"list" form:"list" comment:"租户列表"`
-	Total    int64               `json:"total" form:"total" comment:"租户总数"`
-	Page     int64               `json:"page" form:"page" comment:"页码"`
-	PageSize int64               `json:"page_size" form:"page_size" comment:"每一页大小"`
+	List     []APPListItemOutput `json:"list" dto:"list" comment:"租户列表"`
+	Total    int64               `json:"total" dto:"total" comment:"租户总数"`
+	Page     int64               `json:"page" dto:"page" comment:"页码"`
+	PageSize int64               `json:"page_size" dto:"page_size" comment:"每一页大小"`
 }
 
 type StatisticsOutput struct {
-	Today     []int64 `json:"today" form:"today" comment:"今日统计" validate:"required"`
-	Yesterday []int64 `json:"yesterday" form:"yesterday" comment:"昨日统计" validate:"required"`
+	Today     []int64 `json:"today" dto:"today" comment:"今日统计" validate:"required"`
+	Yesterday []int64 `json:"yesterday" dto:"yesterday" comment:"昨日统计" validate:"required"`
 }

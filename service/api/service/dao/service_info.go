@@ -2,6 +2,7 @@ package dao
 
 import (
 	"GatewayCombat/global"
+	ddto "GatewayCombat/service/api/dashboard/dto"
 	"GatewayCombat/service/api/service/dto"
 	"GatewayCombat/service/grf"
 
@@ -133,4 +134,12 @@ func (si *ServiceInfo) ServiceDetail(tx *gorm.DB, search *ServiceInfo) (*Service
 		AccessControl: accessControl,
 	}
 	return detail, nil
+}
+
+func (si *ServiceInfo) GroupByLoadType(tx *gorm.DB) ([]ddto.DashServiceStatItemOutput, error) {
+	var list []ddto.DashServiceStatItemOutput
+	if err := tx.Table(si.TableName()).Where("is_delete=0").Select("load_type, count(*) as value").Group("load_type").Scan(&list).Error; err != nil {
+		return nil, err
+	}
+	return list, nil
 }

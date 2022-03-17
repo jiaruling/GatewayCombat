@@ -191,41 +191,21 @@ func (app *AppController) AppStatistics(c *gin.Context) {
 		return
 	}
 
-	//search := &dao.App{
-	//	ID: params.ID,
-	//}
-	//detail, err := search.Find(global.RDB, search)
-	//if err != nil {
-	//	grf.Handler500(c, "10001 --> "+err.Error(), nil)
-	//	return
-	//}
-	//
-	////今日流量全天小时级访问统计
-	//todayStat := []int64{}
-	//counter, err := public.FlowCounterHandler.GetCounter(global.FlowAppPrefix + detail.AppID)
-	//if err != nil {
-	//	grf.Handler500(c, "10002 --> "+err.Error(), nil)
-	//	return
-	//}
-	//currentTime := time.Now()
-	//for i := 0; i <= time.Now().In(global.TimeLocation).Hour(); i++ {
-	//	dateTime := time.Date(currentTime.Year(), currentTime.Month(), currentTime.Day(), i, 0, 0, 0, global.TimeLocation)
-	//	hourData, _ := counter.GetHourData(dateTime)
-	//	todayStat = append(todayStat, hourData)
-	//}
-	//
-	////昨日流量全天小时级访问统计
-	//yesterdayStat := []int64{}
-	//yesterTime := currentTime.Add(-1 * time.Hour * 24)
-	//for i := 0; i <= 23; i++ {
-	//	dateTime := time.Date(yesterTime.Year(), yesterTime.Month(), yesterTime.Day(), i, 0, 0, 0, global.TimeLocation)
-	//	hourData, _ := counter.GetHourData(dateTime)
-	//	yesterdayStat = append(yesterdayStat, hourData)
-	//}
-	//stat := dto.StatisticsOutput{
-	//	Today:     todayStat,
-	//	Yesterday: yesterdayStat,
-	//}
-	//grf.Handler200(c, stat)
+	//今日流量全天小时级访问统计
+	var todayStat []int64
+	for i := 0; i <= time.Now().In(global.TimeLocation).Hour(); i++ {
+		todayStat = append(todayStat, 0)
+	}
+
+	//昨日流量全天小时级访问统计
+	var yesterdayStat []int64
+	for i := 0; i <= 23; i++ {
+		yesterdayStat = append(yesterdayStat, 0)
+	}
+	stat := dto.StatisticsOutput{
+		Today:     todayStat,
+		Yesterday: yesterdayStat,
+	}
+	grf.Handler200(c, stat)
 	return
 }
