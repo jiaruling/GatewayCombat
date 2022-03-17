@@ -23,8 +23,3 @@ type DashServiceStatOutput struct {
 	Legend []string                    `json:"legend"`
 	Data   []DashServiceStatItemOutput `json:"data"`
 }
-
-type ServiceStatOutput struct {
-	Today     []int64 `json:"today" dto:"today" comment:"今日流量" example:"" validate:""`         //列表
-	Yesterday []int64 `json:"yesterday" dto:"yesterday" comment:"昨日流量" example:"" validate:""` //列表
-}

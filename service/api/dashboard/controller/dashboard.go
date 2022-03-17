@@ -72,7 +72,7 @@ func (dc *DashboardController) FlowStat(c *gin.Context) {
 	for i := 0; i <= 23; i++ {
 		yesterdayList = append(yesterdayList, 0)
 	}
-	grf.Handler200(c, &dto.ServiceStatOutput{
+	grf.Handler200(c, &serviceDto.ServiceStatOutput{
 		Today:     todayList,
 		Yesterday: yesterdayList,
 	})

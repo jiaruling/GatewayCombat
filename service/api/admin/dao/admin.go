@@ -4,7 +4,6 @@ import (
 	"GatewayCombat/service/api/admin/dto"
 	"GatewayCombat/utils"
 	"errors"
-	"time"
 
 	"gorm.io/gorm"
 )
@@ -16,13 +15,13 @@ import (
    创建时间: 2022/3/4 15:17
 */
 type Admin struct {
-	Id        int       `json:"id" gorm:"primary_key" description:"自增主键"`
-	UserName  string    `json:"user_name" gorm:"column:user_name" description:"管理员用户名"`
-	Salt      string    `json:"salt" gorm:"column:salt" description:"盐"`
-	Password  string    `json:"password" gorm:"column:password" description:"密码"`
-	UpdatedAt time.Time `json:"update_at" gorm:"column:update_at" description:"更新时间"`
-	CreatedAt time.Time `json:"create_at" gorm:"column:create_at" description:"创建时间"`
-	IsDelete  int       `json:"is_delete" gorm:"column:is_delete" description:"是否删除"`
+	Id        int    `json:"id" gorm:"primary_key" description:"自增主键"`
+	UserName  string `json:"user_name" gorm:"column:user_name" description:"管理员用户名"`
+	Salt      string `json:"salt" gorm:"column:salt" description:"盐"`
+	Password  string `json:"password" gorm:"column:password" description:"密码"`
+	UpdatedAt int64  `json:"updated_at" gorm:"column:updated_at" description:"更新时间"`
+	CreatedAt int64  `json:"created_at" gorm:"column:created_at" description:"创建时间"`
+	DeletedAt int64  `json:"deleted_at" gorm:"column:deleted_at" description:"是否删除"`
 }
 
 func (a *Admin) TableName() string {
@@ -44,7 +43,7 @@ func (a *Admin) Save(tx *gorm.DB, model *Admin) (err error) {
 
 // ---------------------------------------------------------------------------------------------------------------------
 func (a *Admin) LoginCheck(tx *gorm.DB, req *dto.AdminLoginInput) (adminInfo *Admin, err error) {
-	adminInfo, err = a.Find(tx, &Admin{UserName: req.UserName, IsDelete: 0})
+	adminInfo, err = a.Find(tx, &Admin{UserName: req.UserName})
 	if err != nil {
 		return nil, errors.New("用户信息不存在")
 	}

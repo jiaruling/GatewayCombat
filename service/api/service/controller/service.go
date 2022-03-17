@@ -349,7 +349,6 @@ func (sc *ServiceController) ServiceAddTcp(c *gin.Context) {
 	//验证 service_name 是否被占用
 	infoSearch := &dao.ServiceInfo{
 		ServiceName: params.ServiceName,
-		DeleteAt:    nil,
 	}
 	if _, err := infoSearch.Find(global.RDB, infoSearch); err == nil {
 		grf.Handler400(c, "服务名被占用，请重新输入", nil)
@@ -520,7 +519,6 @@ func (sc *ServiceController) ServiceAddGrpc(c *gin.Context) {
 	//验证 service_name 是否被占用
 	infoSearch := &dao.ServiceInfo{
 		ServiceName: params.ServiceName,
-		DeleteAt:    nil,
 	}
 	if _, err := infoSearch.Find(global.RDB, infoSearch); err == nil {
 		grf.Handler400(c, "服务名被占用，请重新输入", nil)

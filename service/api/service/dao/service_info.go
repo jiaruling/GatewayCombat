@@ -23,7 +23,7 @@ type ServiceInfo struct {
 	ServiceDesc string `json:"service_desc" db:"service_desc" gorm:"column:service_desc"`
 	UpdatedAt   int64  `json:"created_at" db:"created_at" gorm:"column:created_at"`
 	CreatedAt   int64  `json:"updated_at" db:"updated_at" gorm:"column:updated_at"`
-	DeleteAt    int64  `json:"deleted_at" db:"deleted_at" gorm:"column:deleted_at"`
+	DeletedAt   int64  `json:"deleted_at" db:"deleted_at" gorm:"column:deleted_at"`
 }
 
 func (si *ServiceInfo) TableName() string {
