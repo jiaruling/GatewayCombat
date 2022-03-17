@@ -25,8 +25,8 @@ type AdminController struct{}
 
 func AdminRegister(group *gin.RouterGroup) {
 	adminLogin := &AdminController{}
-	group.GET("/admin_info", adminLogin.AdminInfo)
-	group.POST("/change_pwd", adminLogin.ChangePwd)
+	group.GET("/info", adminLogin.AdminInfo)
+	group.POST("/change/pwd", adminLogin.ChangePwd)
 }
 
 // AdminInfo godoc

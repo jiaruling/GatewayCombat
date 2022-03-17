@@ -24,15 +24,12 @@ type AppController struct{}
 
 func AppRegister(router *gin.RouterGroup) {
 	app := &AppController{}
-	a := router.Group("/app")
-	{
-		a.GET("/list", app.AppList)
-		a.GET("/detail", app.AppDetail)
-		a.GET("/delete", app.AppDelete)
-		a.POST("/add", app.AppAdd)
-		a.POST("/update", app.AppUpdate)
-		a.GET("/stat", app.AppStatistics)
-	}
+	router.GET("/list", app.AppList)
+	router.GET("/detail", app.AppDetail)
+	router.GET("/delete", app.AppDelete)
+	router.POST("/add", app.AppAdd)
+	router.POST("/update", app.AppUpdate)
+	router.GET("/stat", app.AppStatistics)
 }
 
 func (app *AppController) AppList(c *gin.Context) {
